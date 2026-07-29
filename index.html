@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Threat Hunter Quiz</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🕵️ Threat Hunter Quiz</h1>
+    <p class="subtitle">Can you identify the attacker?</p>
+    
+    <div id="quiz-box">
+      <div id="question">Loading...</div>
+      <div id="options"></div>
+      <div id="feedback"></div>
+      <button id="next-btn" onclick="nextQuestion()">Next →</button>
+    </div>
+    
+    <div id="score-box" class="hidden">
+      <h2>Quiz Complete!</h2>
+      <p id="final-score"></p>
+      <button onclick="restartQuiz()">Try Again</button>
+    </div>
+  </div>
+  
+  <script src="script.js"></script>
+</body>
+</html>
