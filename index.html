@@ -1,30 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Threat Hunter Quiz</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon Jungle Race</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>🕵️ Threat Hunter Quiz</h1>
-    <p class="subtitle">Can you identify the attacker?</p>
-    
-    <div id="quiz-box">
-      <div id="question">Loading...</div>
-      <div id="options"></div>
-      <div id="feedback"></div>
-      <button id="next-btn" onclick="nextQuestion()">Next →</button>
+    <div class="game-container">
+        <h1>Dragon Jungle Race</h1>
+        <p class="subtitle">Jump over obstacles! Hit one and you lose!</p>
+        
+        <div class="stats-bar">
+            <div class="stat-box score">
+                <div class="stat-label">Score</div>
+                <div class="stat-value" id="scoreVal">0</div>
+            </div>
+            <div class="stat-box mult">
+                <div class="stat-label">Multiplier</div>
+                <div class="stat-value" id="multVal">x1</div>
+            </div>
+            <div class="stat-box obs">
+                <div class="stat-label">Passed</div>
+                <div class="stat-value" id="obsVal">0</div>
+            </div>
+        </div>
+        
+        <div class="canvas-wrapper">
+            <canvas id="gameCanvas" width="760" height="380"></canvas>
+            <div class="overlay" id="overlay">
+                <h2>GAME OVER!</h2>
+                <p>You hit an obstacle!</p>
+                <p>Final Score:</p>
+                <p class="big-score" id="finalScore">0</p>
+                <p style="color:#90ee90;">Obstacles Passed: <span id="finalObs">0</span></p>
+                <button onclick="startGame()">Play Again</button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="startBtn" onclick="startGame()">Start Race</button>
+            <button id="jumpBtn" onclick="jump()">Jump</button>
+        </div>
+        
+        <p class="hint">Press SPACE to jump | Dodge obstacles to survive!</p>
     </div>
-    
-    <div id="score-box" class="hidden">
-      <h2>Quiz Complete!</h2>
-      <p id="final-score"></p>
-      <button onclick="restartQuiz()">Try Again</button>
-    </div>
-  </div>
-  
-  <script src="script.js"></script>
 </body>
 </html>
