@@ -45,5 +45,577 @@
         
         <p class="hint">Press SPACE to jump | Dodge obstacles to survive!</p>
     </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let gameRunning = false;
+        let gameOver = false;
+        let score = 0;
+        let multiplier = 1;
+        let obstaclesPassed = 0;
+        let frameCount = 0;
+        let speed = 4;
+        let groundOffset = 0;
+        
+      
+        const dragon = {
+            x: 80,
+            y: 270,
+            w: 50,
+            h: 40,
+            vy: 0,
+            grounded: true
+        };
+        
+       
+        let obstacles = [];
+        let particles = [];
+        let clouds = [];
+        let trees = [];
+        
+       
+        for (let i = 0; i < 6; i++) {
+            clouds.push({
+                x: Math.random() * 760,
+                y: 15 + Math.random() * 80,
+                w: 50 + Math.random() * 50,
+                h: 25 + Math.random() * 20,
+                speed: 0.2 + Math.random() * 0.3
+            });
+        }
+        
+        for (let i = 0; i < 10; i++) {
+            trees.push({
+                x: i * 90 + Math.random() * 40,
+                h: 50 + Math.random() * 50,
+                type: Math.floor(Math.random() * 3)
+            });
+        }
+        
+       
+        
+        function drawCloud(c) {
+            ctx.fillStyle = 'rgba(255,255,255,0.85)';
+            ctx.beginPath();
+            ctx.arc(c.x, c.y, c.h, 0, Math.PI * 2);
+            ctx.arc(c.x + c.w * 0.35, c.y - c.h * 0.3, c.h * 0.75, 0, Math.PI * 2);
+            ctx.arc(c.x + c.w * 0.65, c.y, c.h * 0.65, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawTree(t) {
+            const y = 310;
+            ctx.fillStyle = '#5d4037';
+            ctx.fillRect(t.x + 10, y - t.h + 25, 14, t.h - 25);
+            ctx.fillStyle = ['#1b5e20', '#2e7d32', '#388e3c'][t.type];
+            ctx.beginPath();
+            ctx.arc(t.x + 17, y - t.h + 25, 28, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = ['#2e7d32', '#4caf50', '#66bb6a'][t.type];
+            ctx.beginPath();
+            ctx.arc(t.x + 5, y - t.h + 15, 18, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(t.x + 30, y - t.h + 18, 16, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawDragon() {
+            const x = dragon.x, y = dragon.y;
+            ctx.save();
+            
+          
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.beginPath();
+            ctx.ellipse(x + 25, 310, 30, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+           
+            ctx.fillStyle = '#ff4500';
+            ctx.beginPath();
+            ctx.ellipse(x + 25, y + 22, 26, 19, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#cc3700';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+           
+            ctx.fillStyle = '#ff7f50';
+            ctx.beginPath();
+            ctx.ellipse(x + 25, y + 28, 16, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#ff6347';
+            ctx.beginPath();
+            ctx.ellipse(x + 48, y + 8, 16, 14, -0.15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#cc3700';
+            ctx.stroke();
+            
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(x + 53, y + 4, 5.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(x + 55, y + 4, 2.8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(x + 56, y + 2.5, 1.2, 0, Math.PI * 2);
+            ctx.fill();
+            
+           
+            ctx.fillStyle = '#ffa07a';
+            ctx.beginPath();
+            ctx.moveTo(x + 58, y - 4);
+            ctx.lineTo(x + 64, y - 14);
+            ctx.lineTo(x + 54, y - 6);
+            ctx.fill();
+            
+          
+            const wingY = y - 12 + Math.sin(frameCount * 0.18) * 10;
+            ctx.fillStyle = '#ff7f50';
+            ctx.beginPath();
+            ctx.moveTo(x + 12, y + 8);
+            ctx.lineTo(x - 8, wingY);
+            ctx.lineTo(x - 3, wingY + 15);
+            ctx.lineTo(x + 8, wingY + 22);
+            ctx.lineTo(x + 18, y + 12);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#cc3700';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            
+          
+            ctx.strokeStyle = '#ffccbc';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x + 12, y + 8);
+            ctx.lineTo(x - 5, wingY + 5);
+            ctx.lineTo(x + 5, wingY + 18);
+            ctx.stroke();
+           
+            ctx.strokeStyle = '#ff4500';
+            ctx.lineWidth = 7;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(x, y + 22);
+            const tailWave = Math.sin(frameCount * 0.12) * 12;
+            ctx.quadraticCurveTo(x - 22, y + 10 + tailWave, x - 35, y + 26);
+            ctx.stroke();
+            
+           
+            ctx.fillStyle = '#ffa07a';
+            ctx.beginPath();
+            ctx.moveTo(x - 32, y + 24);
+            ctx.lineTo(x - 40, y + 20);
+            ctx.lineTo(x - 34, y + 30);
+            ctx.fill();
+            
+           
+            ctx.fillStyle = '#cc3700';
+            ctx.fillRect(x + 10, y + 35, 8, 12);
+            ctx.fillRect(x + 30, y + 35, 8, 12);
+            
+          
+            ctx.fillStyle = '#ffa07a';
+            ctx.beginPath();
+            ctx.moveTo(x + 8, y + 47);
+            ctx.lineTo(x + 20, y + 47);
+            ctx.lineTo(x + 14, y + 42);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(x + 28, y + 47);
+            ctx.lineTo(x + 40, y + 47);
+            ctx.lineTo(x + 34, y + 42);
+            ctx.fill();
+          
+
+            if (frameCount % 18 < 9) {
+                const flicker = Math.random() * 6;
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.moveTo(x + 60, y + 10);
+                ctx.lineTo(x + 82, y + 5 + flicker);
+                ctx.lineTo(x + 85, y + 12 + flicker * 0.5);
+                ctx.lineTo(x + 78, y + 16 + flicker);
+                ctx.lineTo(x + 60, y + 14);
+                ctx.fill();
+                
+                ctx.fillStyle = '#ff8c00';
+                ctx.beginPath();
+                ctx.moveTo(x + 60, y + 11);
+                ctx.lineTo(x + 74, y + 8 + flicker * 0.5);
+                ctx.lineTo(x + 76, y + 13 + flicker * 0.3);
+                ctx.lineTo(x + 60, y + 13);
+                ctx.fill();
+                
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.moveTo(x + 60, y + 12);
+                ctx.lineTo(x + 68, y + 10 + flicker * 0.3);
+                ctx.lineTo(x + 60, y + 13);
+                ctx.fill();
+            }
+            
+            ctx.restore();
+        }
+        
+        function drawObstacle(obs) {
+            ctx.save();
+            const x = obs.x, y = obs.y, w = obs.w, h = obs.h;
+            
+           
+            ctx.fillStyle = 'rgba(0,0,0,0.15)';
+            ctx.beginPath();
+            ctx.ellipse(x + w / 2, 310, w / 2 + 5, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            if (obs.type === 'rock') {
+              
+                ctx.fillStyle = '#6d4c41';
+                ctx.beginPath();
+                ctx.moveTo(x, y + h);
+                ctx.lineTo(x + 8, y + 8);
+                ctx.lineTo(x + 22, y + 2);
+                ctx.lineTo(x + 35, y + 6);
+                ctx.lineTo(x + w, y + h);
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = '#4e342e';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                ctx.fillStyle = '#8d6e63';
+                ctx.beginPath();
+                ctx.arc(x + 15, y + 18, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#5d4037';
+                ctx.beginPath();
+                ctx.arc(x + 28, y + 22, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+            } else {
+             
+                ctx.fillStyle = '#b71c1c';
+                ctx.beginPath();
+                ctx.moveTo(x, y + h);
+                ctx.lineTo(x + w / 2, y);
+                ctx.lineTo(x + w, y + h);
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = '#7f0000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                ctx.fillStyle = '#e53935';
+                ctx.beginPath();
+                ctx.moveTo(x + 8, y + h);
+                ctx.lineTo(x + w / 2, y + 12);
+                ctx.lineTo(x + w - 8, y + h);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.fillStyle = '#ef5350';
+                ctx.beginPath();
+                ctx.moveTo(x + 12, y + h);
+                ctx.lineTo(x + w / 2, y + 20);
+                ctx.lineTo(x + w / 2 + 3, y + h);
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            ctx.restore();
+        }
+        
+        function drawParticles() {
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life / 40;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size * (p.life / 40), 0, Math.PI * 2);
+                ctx.fill();
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.1;
+                p.life--;
+            });
+            ctx.globalAlpha = 1;
+        }
+        
+        function spawnParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 1) * 8,
+                    size: 3 + Math.random() * 5,
+                    color: color,
+                    life: 30 + Math.random() * 20
+                });
+            }
+        }
+        
+      
+        
+        function spawnObstacle() {
+         
+            const types = ['rock', 'spike'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            let y = 270, h = 40, w = 45;
+            obstacles.push({ x: 800, y: y, w: w, h: h, type: type, passed: false });
+        }
+        
+        function update() {
+            if (!gameRunning || gameOver) return;
+            
+            frameCount++;
+            score += Math.floor(speed * multiplier * 0.15);
+            groundOffset = (groundOffset - speed) % 40;
+            
+           
+            dragon.vy += 0.65;
+            dragon.y += dragon.vy;
+            if (dragon.y >= 270) {
+                dragon.y = 270;
+                dragon.vy = 0;
+                dragon.grounded = true;
+            }
+            
+          
+            if (frameCount % 110 === 0) {
+                spawnObstacle();
+                if (speed < 11) speed += 0.25;
+            }
+            
+          
+            obstacles = obstacles.filter(obs => obs.x > -60);
+            
+            obstacles.forEach(obs => {
+                obs.x -= speed;
+                
+              
+                if (!obs.passed &&
+                    dragon.x < obs.x + obs.w &&
+                    dragon.x + dragon.w > obs.x &&
+                    dragon.y < obs.y + obs.h &&
+                    dragon.y + dragon.h > obs.y) {
+                    
+                  
+                    obs.passed = true;
+                    spawnParticles(dragon.x + 25, dragon.y + 20, '#dc143c', 25);
+                    spawnParticles(dragon.x + 25, dragon.y + 20, '#ff8c00', 15);
+                    spawnParticles(dragon.x + 25, dragon.y + 20, '#ffd700', 10);
+                    
+                  
+                    canvas.classList.add('flash-red');
+                    setTimeout(() => canvas.classList.remove('flash-red'), 400);
+                    
+                   
+                    canvas.style.transform = `translate(${Math.random() * 10 - 5}px, ${Math.random() * 10 - 5}px)`;
+                    setTimeout(() => canvas.style.transform = 'none', 200);
+                    
+                    endGame();
+                    return;
+                }
+                
+              
+                if (!obs.passed && obs.x + obs.w < dragon.x) {
+                    obs.passed = true;
+                    obstaclesPassed++;
+                    multiplier = Math.min(multiplier + 0.5, 5);
+                    
+                  
+                    spawnParticles(obs.x + obs.w / 2, obs.y + obs.h / 2, '#32cd32', 12);
+                    spawnParticles(obs.x + obs.w / 2, obs.y + obs.h / 2, '#ffd700', 8);
+                }
+            });
+            
+
+            clouds.forEach(c => {
+                c.x -= c.speed;
+                if (c.x + c.w < -50) c.x = 800 + Math.random() * 100;
+            });
+            
+           
+            trees.forEach(t => {
+                t.x -= speed * 0.4;
+                if (t.x < -60) t.x = 800 + Math.random() * 50;
+            });
+            
+          
+            document.getElementById('scoreVal').textContent = score.toLocaleString();
+            document.getElementById('multVal').textContent = 'x' + multiplier.toFixed(1);
+            document.getElementById('obsVal').textContent = obstaclesPassed;
+        }
+        
+      
+        
+        function draw() {
+            ctx.clearRect(0, 0, 760, 380);
+            
+          
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, 380);
+            skyGrad.addColorStop(0, '#87CEEB');
+            skyGrad.addColorStop(0.4, '#B0E0E6');
+            skyGrad.addColorStop(0.4, '#66bb6a');
+            skyGrad.addColorStop(0.55, '#4caf50');
+            skyGrad.addColorStop(1, '#2e7d32');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, 760, 380);
+            
+          
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+            ctx.beginPath();
+            ctx.arc(650, 60, 45, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(650, 60, 30, 0, Math.PI * 2);
+            ctx.fill();
+            
+          
+            clouds.forEach(drawCloud);
+            
+          
+            ctx.fillStyle = '#388e3c';
+            ctx.beginPath();
+            ctx.moveTo(0, 310);
+            for (let i = 0; i <= 760; i += 20) {
+                ctx.lineTo(i, 310 - Math.sin(i * 0.02 + frameCount * 0.005) * 15);
+            }
+            ctx.lineTo(760, 380);
+            ctx.lineTo(0, 380);
+            ctx.fill();
+            
+          
+            ctx.fillStyle = '#2e7d32';
+            ctx.fillRect(0, 310, 760, 70);
+            ctx.fillStyle = '#388e3c';
+            ctx.fillRect(0, 310, 760, 8);
+            
+          
+            ctx.fillStyle = 'rgba(0,0,0,0.08)';
+            for (let i = groundOffset; i < 760; i += 40) {
+                ctx.fillRect(i, 318, 20, 62);
+            }
+            
+          
+            trees.forEach(drawTree);
+            
+          
+            ctx.fillStyle = '#1b5e20';
+            for (let i = 0; i < 15; i++) {
+                const gx = ((i * 53 + frameCount * 0.5) % 800);
+                ctx.beginPath();
+                ctx.moveTo(gx, 312);
+                ctx.lineTo(gx - 4, 300);
+                ctx.lineTo(gx + 4, 300);
+                ctx.fill();
+            }
+            
+          
+            obstacles.forEach(obs => drawObstacle(obs));
+            
+          
+            drawDragon();
+            
+          
+            drawParticles();
+            
+          
+            if (!gameRunning && !gameOver && frameCount === 0) {
+                ctx.fillStyle = 'rgba(0,0,0,0.65)';
+                ctx.fillRect(0, 0, 760, 380);
+                
+                ctx.fillStyle = '#FFD700';
+                ctx.font = 'bold 38px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('DRAGON JUNGLE RACE', 380, 160);
+                
+                ctx.fillStyle = '#90ee90';
+                ctx.font = '20px Arial';
+                ctx.fillText('Jump over obstacles! Do not hit!', 380, 210);
+                
+                ctx.fillStyle = '#ffcc80';
+                ctx.font = '18px Arial';
+                ctx.fillText('Press "Start Race" or SPACE', 380, 250);
+                
+                const arrowY = 280 + Math.sin(frameCount * 0.08) * 8;
+                ctx.fillStyle = '#ff8c00';
+                ctx.font = '30px Arial';
+                ctx.fillText('v', 380, arrowY);
+            }
+        }
+        
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+      
+        
+        function jump() {
+            if (gameRunning && !gameOver && dragon.grounded) {
+                dragon.vy = -14;
+                dragon.grounded = false;
+                spawnParticles(dragon.x + 25, dragon.y + 40, '#32cd32', 8);
+            }
+        }
+        
+        function startGame() {
+            gameRunning = true;
+            gameOver = false;
+            score = 0;
+            multiplier = 1;
+            obstaclesPassed = 0;
+            frameCount = 0;
+            speed = 4;
+            dragon.y = 270;
+            dragon.vy = 0;
+            dragon.grounded = true;
+            obstacles = [];
+            particles = [];
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('scoreVal').textContent = '0';
+            document.getElementById('multVal').textContent = 'x1';
+            document.getElementById('obsVal').textContent = '0';
+        }
+        
+        function endGame() {
+            gameOver = true;
+            gameRunning = false;
+            document.getElementById('finalScore').textContent = score.toLocaleString();
+            document.getElementById('finalObs').textContent = obstaclesPassed;
+            document.getElementById('overlay').style.display = 'block';
+        }
+        
+      
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (!gameRunning && !gameOver) {
+                    startGame();
+                } else if (gameRunning) {
+                    jump();
+                } else if (gameOver) {
+                    startGame();
+                }
+            }
+        });
+        
+        canvas.addEventListener('click', () => {
+            if (gameRunning) jump();
+        });
+        
+      
+        gameLoop();
+    </script>
 </body>
 </html>

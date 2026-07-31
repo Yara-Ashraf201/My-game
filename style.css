@@ -1,5 +1,4 @@
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+ * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -172,4 +171,3 @@
         .flash-red {
             animation: flashRed 0.4s ease-out;
         }
-    </style>
