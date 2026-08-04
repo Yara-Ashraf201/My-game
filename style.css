@@ -1,35 +1,35 @@
- * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0a1a0a 0%, #143314 50%, #0a1a0a 100%);
+            background: linear-gradient(135deg, #051305 0%, #0d280d 50%, #051305 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            color: #fff;
         }
         
         .game-container {
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             border-radius: 20px;
             padding: 20px;
-            box-shadow: 0 0 40px rgba(34, 139, 34, 0.3);
+            box-shadow: 0 0 50px rgba(50, 205, 50, 0.25);
             border: 2px solid #228b22;
             max-width: 820px;
+            text-align: center;
         }
         
         h1 {
-            text-align: center;
             color: #ff6b00;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+            text-shadow: 0 0 10px rgba(255, 107, 0, 0.5);
             margin-bottom: 5px;
-            font-size: 28px;
+            font-size: 32px;
         }
         
         .subtitle {
-            text-align: center;
             color: #90ee90;
             font-size: 14px;
             margin-bottom: 15px;
@@ -39,19 +39,20 @@
             display: flex;
             justify-content: space-around;
             margin-bottom: 15px;
-            gap: 15px;
+            gap: 10px;
         }
         
         .stat-box {
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             border-radius: 12px;
-            padding: 10px 25px;
+            padding: 8px 18px;
             text-align: center;
             border: 1px solid;
-            min-width: 100px;
+            min-width: 90px;
         }
         
         .stat-box.score { border-color: #32cd32; }
+        .stat-box.high { border-color: #ffd700; }
         .stat-box.mult { border-color: #ff8c00; }
         .stat-box.obs { border-color: #dc143c; }
         
@@ -60,24 +61,29 @@
             color: #bbb;
             margin-bottom: 3px;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
         
         .stat-value {
-            font-size: 26px;
+            font-size: 22px;
             font-weight: bold;
         }
         
-        .stat-box.score .stat-value { color: #ffd700; }
+        .stat-box.score .stat-value { color: #32cd32; }
+        .stat-box.high .stat-value { color: #ffd700; }
         .stat-box.mult .stat-value { color: #ff8c00; }
         .stat-box.obs .stat-value { color: #dc143c; }
         
+        .canvas-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
         canvas {
             border: 3px solid #228b22;
             border-radius: 12px;
             display: block;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.6);
         }
         
         .controls {
@@ -94,9 +100,8 @@
             border: none;
             border-radius: 25px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
             color: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         
         button:hover { transform: translateY(-2px); }
@@ -113,7 +118,6 @@
         }
         
         .hint {
-            text-align: center;
             color: #98fb98;
             font-size: 13px;
             margin-top: 12px;
@@ -125,49 +129,38 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(0, 0, 0, 0.92);
-            padding: 35px 50px;
+            padding: 30px 45px;
             border-radius: 20px;
             border: 2px solid #dc143c;
             text-align: center;
             display: none;
             z-index: 10;
-            box-shadow: 0 0 50px rgba(220, 20, 60, 0.3);
+            box-shadow: 0 0 50px rgba(220, 20, 60, 0.4);
         }
         
         .overlay h2 {
             color: #dc143c;
             font-size: 32px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         
         .overlay p {
-            color: white;
-            font-size: 18px;
-            margin: 8px 0;
+            font-size: 16px;
+            margin: 5px 0;
         }
         
         .overlay .big-score {
             color: #ffd700;
-            font-size: 36px;
+            font-size: 34px;
             font-weight: bold;
         }
         
-        .overlay button {
-            margin-top: 15px;
-            background: linear-gradient(135deg, #32cd32, #228b22);
-        }
-        
-        .canvas-wrapper {
-            position: relative;
-            display: inline-block;
+        .flash-red {
+            animation: flashRed 0.3s ease-out;
         }
         
         @keyframes flashRed {
             0% { box-shadow: 0 0 0 rgba(220,20,60,0); }
-            50% { box-shadow: 0 0 40px rgba(220,20,60,0.9); }
+            50% { box-shadow: 0 0 50px rgba(220,20,60,0.9); }
             100% { box-shadow: 0 0 0 rgba(220,20,60,0); }
-        }
-        
-        .flash-red {
-            animation: flashRed 0.4s ease-out;
         }
